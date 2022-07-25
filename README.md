@@ -1,6 +1,8 @@
 # theses-es-cluster-docker
 
-Configuration docker 🐳 pour déployer un nœud du cluster elasticsearch de theses.fr (travail en cours)
+(travail en cours)
+
+Configuration docker 🐳 pour déployer un nœud du cluster elasticsearch de theses.fr. Le déploiement d'un nouveau noeud elasticsearch suppose un déploiement préalable de l'application theses.fr (voir [``theses-docker``](https://github.com/abes-esr/theses-docker)) qui embarque un premier noeud elasticsearch.
 
 ## Installation
 
