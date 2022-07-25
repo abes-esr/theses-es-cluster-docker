@@ -1,0 +1,4 @@
+.env
+volumes/theses-elasticsearch/
+volumes/theses-elasticsearch-setupcerts/
+
