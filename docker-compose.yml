@@ -19,7 +19,7 @@ services:
       - node.name=theses-es${ELK_CLUSTER_NODE_NUMBER}
       - cluster.name=${ELK_CLUSTER_NAME}
       - cluster.initial_master_nodes=${ELK_CLUSTER_INITIAL_MASTER_NODES}
-      - discovery.seed_hosts=${ELK_DISCOVER_SEED_HOSTS}
+      - discovery.seed_hosts=${ELK_CLUSTER_DISCOVER_SEED_HOSTS}
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - bootstrap.memory_lock=true
       - xpack.security.enabled=true
@@ -64,7 +64,7 @@ services:
 # 2) git clonner ce même dépôt deux fois (un par noeud)
 # 3) paramétrer le .env de chaque noeud avec ELK_CLUSTER_NODE_NUMBER qui vaut "01" ou "02" (fonction du noeud) :
 #    ELK_CLUSTER_NODE_NUMBER=01
-#    ELK_DISCOVER_SEED_HOSTS=theses-elasticsearch-01:9300,theses-elasticsearch-02:9300
+#    ELK_CLUSTER_DISCOVER_SEED_HOSTS=theses-elasticsearch-01:9300,theses-elasticsearch-02:9300
 #    ELK_CLUSTER_INITIAL_MASTER_NODES=theses-es01,theses-es02
 # 4) lancer les deux noeuds dans leurs deux répertoires dédié avec "docker-compose up"
 #networks:
