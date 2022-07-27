@@ -61,7 +61,7 @@ services:
 # elle permet de lancer plusieurs noeuds indépendants au niveau docker mais reliés par ce réseau commun
 # pour lancer deux noeuds sur la même machine, il suffit alors de :
 # 1) créer ce réseau via "docker network create theses-docker-es-cluster-network"
-# 2) git clonner ce même dépôt deux fois (un par noeud)
+# 2) pour le noeud 2 utiliser la config suivante : https://github.com/abes-esr/theses-es-cluster-docker/
 # 3) paramétrer le .env de chaque noeud avec ELK_CLUSTER_NODE_NUMBER qui vaut "01" ou "02" (fonction du noeud) :
 #    ELK_CLUSTER_NODE_NUMBER=01
 #    ELK_CLUSTER_DISCOVER_SEED_HOSTS=theses-elasticsearch-01:9300,theses-elasticsearch-02:9300
@@ -71,3 +71,4 @@ services:
 #  default:
 #    name: theses-docker-es-cluster-network
 #    external: true
+
