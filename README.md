@@ -128,6 +128,12 @@ Si tout c'est bien passé, vous devriez avoir un retour de ce type :
 }
 ```
 
+On peut observer également dans les logs du premier noeud, le moment où le second et le troisième noeu rejoignent le cluster :
+```json
+ {"@timestamp":"2022-07-27T14:56:55.732Z", "log.level": "INFO", "message":"added {{theses-es02}{sH6jSIdMRRyQ5JVowchsyQ}{Sx1tZYh-Rca8nt3GQ2Z-ng}{theses-es02}{172.31.0.2}{172.31.0.2:9300}{cdfhilmrstw}}, term: 5, version: 158, reason: Publication{term=5, version=158}", "ecs.version": "1.2.0","service.name":"ES_ECS","event.dataset":"elasticsearch.server","process.thread.name":"elasticsearch[theses-es01][clusterApplierService#updateTask][T#1]","log.logger":"org.elasticsearch.cluster.service.ClusterApplierService","elasticsearch.cluster.uuid":"Y4rayRuGRkasvpxF0DvGTg","elasticsearch.node.id":"I8qD98AIRRyidBDEs_WAqQ","elasticsearch.node.name":"theses-es01","elasticsearch.cluster.name":"theses-cluster"}
+```
+
+
 ## Mémo
 
 L'authentification ELASTIC_PASSWORD n'est utilisée que pour l'API JSON d'elasticsearch. La communication entre les différents noeuds du cluster elasticsearch est réalisée en se basant sur le système de certificat qui est utilisé via la directive ``xpack.security.transport.ssl.enabled=true``
