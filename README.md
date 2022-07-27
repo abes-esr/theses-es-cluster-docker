@@ -128,7 +128,7 @@ Si tout c'est bien passé, vous devriez avoir un retour de ce type :
 }
 ```
 
-On peut observer également dans les logs du premier noeud, le moment où le second et le troisième noeud rejoignent le cluster :
+On peut également observer les logs des noeuds quand un noeud rejoint le cluster :
 ```json
 # coté noeud 1
 {
