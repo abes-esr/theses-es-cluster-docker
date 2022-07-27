@@ -128,8 +128,9 @@ Si tout c'est bien passé, vous devriez avoir un retour de ce type :
 }
 ```
 
-On peut observer également dans les logs du premier noeud, le moment où le second et le troisième noeu rejoignent le cluster :
+On peut observer également dans les logs du premier noeud, le moment où le second et le troisième noeud rejoignent le cluster :
 ```json
+# coté noeud 1
 {
  "@timestamp":"2022-07-27T14:56:55.732Z", "log.level": "INFO",
   "message":"added {{theses-es02}{sH6jSIdMRRyQ5JVowchsyQ}{Sx1tZYh-Rca8nt3GQ2Z-ng}{theses-es02}{172.31.0.2}{172.31.0.2:9300}{cdfhilmrstw}}, term: 5, version: 158, reason: Publication{term=5, version=158}",
@@ -138,6 +139,16 @@ On peut observer également dans les logs du premier noeud, le moment où le sec
   "elasticsearch.cluster.uuid":"Y4rayRuGRkasvpxF0DvGTg",
   "elasticsearch.node.id":"I8qD98AIRRyidBDEs_WAqQ",
   "elasticsearch.node.name":"theses-es01",
+  "elasticsearch.cluster.name":"theses-cluster"
+}
+
+# coté noeud 2
+{
+  "@timestamp":"2022-07-27T14:56:55.223Z", "log.level": "INFO",
+  "message":"master node changed {previous [], current [{theses-es01}{I8qD98AIRRyidBDEs_WAqQ}{8Bc5pUJnTmyG6qNhZDIFTw}{theses-es01}{172.31.0.6}{172.31.0.6:9300}{cdfhilmrstw}]}, added {{theses-es01}{I8qD98AIRRyidBDEs_WAqQ}{8Bc5pUJnTmyG6qNhZDIFTw}{theses-es01}{172.31.0.6}{172.31.0.6:9300}{cdfhilmrstw}}, term: 5, version: 158, reason: ApplyCommitRequest{term=5, version=158, sourceNode={theses-es01}{I8qD98AIRRyidBDEs_WAqQ}{8Bc5pUJnTmyG6qNhZDIFTw}{theses-es01}{172.31.0.6}{172.31.0.6:9300}{cdfhilmrstw}{ml.machine_memory=1073741824, ml.max_jvm_size=536870912, xpack.installed=true}}",
+  "ecs.version": "1.2.0","service.name":"ES_ECS","event.dataset":"elasticsearch.server","process.thread.name":"elasticsearch[theses-es02][clusterApplierService#updateTask][T#1]",
+  "log.logger":"org.elasticsearch.cluster.service.ClusterApplierService",
+  "elasticsearch.node.name":"theses-es02",
   "elasticsearch.cluster.name":"theses-cluster"
 }
 ```
