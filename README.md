@@ -53,7 +53,7 @@ docker-compose up -d
 
 ## Serveurs 2 & 3 : les deux autres noeuds elasticsearch de theses.fr
 
-Le second et le troisième noeud elasticsearch de theses.fr sont respectivement déployés sur ``diplotaxis2-test`` et ``diplotaxis2-test``.
+Le second et le troisième noeud elasticsearch de theses.fr sont respectivement déployés sur ``diplotaxis2-test`` et ``diplotaxis3-test``.
 
 ```bash
 ssh diplotaxis2-test
