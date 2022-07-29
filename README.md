@@ -71,12 +71,13 @@ Ensuite il faut créer un fichier ``/opt/pod/theses-es-cluster-docker/.env`` en 
 ```bash
 cd /opt/pod/theses-es-cluster-docker/
 cp .env-dist .env
+```
 
-# régler ELASTIC_PASSWORD sur la même valeur que sur les 3 noeuds
-# et régler surtout les variables suivantes en prenant soins d'incrémenter le n° du noeud :
-# ELK_CLUSTER_NODE_NUMBER
-# ELK_CLUSTER_DISCOVER_SEED_HOSTS
-# ELK_CLUSTER_INITIAL_MASTER_NODES
+Régler alors ``ELASTIC_PASSWORD`` sur la même valeur que sur les 3 noeuds et régler surtout les variables suivantes en prenant soins d'incrémenter le n° du noeud dans ``ELK_CLUSTER_NODE_NUMBER`` :
+```env
+ELK_CLUSTER_NODE_NUMBER=02
+ELK_CLUSTER_DISCOVER_SEED_HOSTS=diplotaxis1-test:10305,diplotaxis2-test:10305,diplotaxis3-test:10305
+ELK_CLUSTER_INITIAL_MASTER_NODES=theses-es01,theses-es02,theses-es03
 ```
 
 Et finalement on peut démarrer le noeud elasticsearch qui rejoindra alors le cluster elasticsearch de theses.fr :
