@@ -6,39 +6,20 @@ Configuration docker 🐳 pour déployer un nœud du cluster elasticsearch de th
 
 ## Installation
 
-On commence par récupérer la configuration du déploiement depuis le github :
-```bash
-cd /opt/pod/ # à adapter en local car vous pouvez cloner le dépôt dans votre homedir
-git clone https://github.com/abes-esr/theses-es-cluster-docker.git
-```
+Pour intégrer un noeud suplémentaire au cluster elasticsearch de theses.fr, voici la marche à suivre.
 
-Ensuite on configure notre déploiement en prenant exemple sur le fichier [``.env-dist``](./.env-dist) qui contient toutes les variables utilisables avec les explications :
-```bash
-cd /opt/pod/theses-es-cluster-docker/
-cp .env-dist .env
-# personnalisez alors le .env en partant des valeurs exemple présentes dans le .env-dist
-```
-
-Finalement on règle quelques droits sur les répertoires et on peut démarrer le noeud elasticsearch :
-```bash
-# forcer les droits max pour les volumes déportés sur le système de fichier local
-cd /opt/pod/theses-es-cluster-docker/
-mkdir -p volumes/theses-elasticsearch/            && chmod 777 volumes/theses-elasticsearch/
-mkdir -p volumes/theses-elasticsearch-setupcerts/ && chmod 777 volumes/theses-elasticsearch-setupcerts/
-```
-
-Pour déployer theses.fr sur les serveurs de dev, test et prod, il est préférable (obligatoire pour la prod) de passer par un cluster elasticsearch à trois noeuds sur 3 serveurs distincts. Voici la marche à suivre :
-
-On suppose par exemple un déploiement sur les serveurs suivants (remplacer le nom du serveur pour les autres environnements) :
+On suppose ci-dessous un déploiement de 3 noeuds sur les serveurs suivants (mais on peut extrapoler pour créer 4, 5, ou 6 noeuds si nécessaire) :
 - ``diplotaxis1-test``
 - ``diplotaxis2-test``
 - ``diplotaxis3-test``
 
-## Serveur 1 : toute l'appli theses.fr + le premier noeud elasticsearch
+### Installation : Serveur 1 / Noeud 1
 
-Sur le premier noeud on va installer la pile logicielle complète de theses.fr qui contient tous les modules de theses.fr ainsi que le premier noeud du cluster elasticsearch et kibana. Pour cela il faut se reporter à la [section installation du dépôt ``theses-docker``](README.md#installation).
+Sur le premier serveur ``diplotaxis1-test`` on va installer le premier noeud elasticsearch en compagnie de toute la pile logicielle de theses.fr. Il y aura donc sur ce premier serveur tous les modules de theses.fr ainsi que le premier noeud du cluster elasticsearch et aussi le kibana d'administration.
 
-Sur ce premier noeud, les réglages particuliers à réaliser dans le ``.env`` sont les suivants :
+Pour installer ce noeud, il faut se reporter à la [section installation du dépôt ``theses-docker``](README.md#installation).
+
+Ensuite sur ce premier noeud, la seule chose à régler concerne les paramètres suivants dans le ``.env`` (ce qui est important c'est de bien choisir le numéro "01" pour le numéro du noeud) :
 ```env
 ELK_CLUSTER_NODE_NUMBER=01
 ELK_CLUSTER_DISCOVER_SEED_HOSTS=diplotaxis1-test:10305,diplotaxis2-test:10305,diplotaxis3-test:10305
@@ -51,9 +32,9 @@ cd /opt/pod/theses-docker/
 docker-compose up -d
 ```
 
-## Serveurs 2 & 3 : les deux autres noeuds elasticsearch de theses.fr
+### Installation : Serveurs 2 & 3 / Noeuds 2 & 3
 
-Le second et le troisième noeud elasticsearch de theses.fr sont respectivement déployés sur ``diplotaxis2-test`` et ``diplotaxis3-test``.
+Le second et le troisième noeud elasticsearch de theses.fr sont respectivement déployés sur ``diplotaxis2-test`` et ``diplotaxis3-test`` (cette documentation permet d'extrapoler pour augmenter à 4, 5 ou 6 noeuds elasticsearch si c'était un jour nécessaire). La configuration nécessaire pour déployer ces noeuds suplémentaires est contenu dans ce présent dépôt. Voici les commandes à lancer sur les différents serveurs pour installer les noeuds.
 
 ```bash
 ssh diplotaxis2-test
@@ -63,40 +44,42 @@ cd /opt/pod/theses-es-cluster-docker/
 mkdir -p volumes/theses-elasticsearch-setupcerts/ && chmod 777 volumes/theses-elasticsearch-setupcerts/
 mkdir -p volumes/theses-elasticsearch/ && chmod 777 volumes/theses-elasticsearch/
 
-# Remarque : répéter l'opération sur diplotaxis3-test
+# Ensuite répéter la même opération sur diplotaxis3-test !
 ```
 
-Vous devez ensuite récupérer les certificats générés par l'initialisation de ``theses-docker`` sur ``diplotaxis1-test`` (cf étape serveur 1 plus haut). Ce sont ces certificats qui permettront aux 3 noeuds elasticsearch de communiquer de façon sécurisée au sein du cluster elasticsearch. Voici comment procéder pour les récupérer et les transmettre aux 2 autres noeuds elasticsearch qui sont sur les serveurs ``diplotaxis2-test`` et ``diplotaxis3-test`` :
+Vous devez ensuite récupérer les certificats générés par l'initialisation de ``theses-docker`` sur ``diplotaxis1-test`` (cf étape serveur 1 plus haut). Ce sont ces certificats qui permettront aux 3 noeuds elasticsearch de communiquer de façon sécurisée au sein du cluster elasticsearch. Voici une façon de  procéder pour les récupérer et les transmettre aux 2 autres noeuds elasticsearch qui sont sur les serveurs ``diplotaxis2-test`` et ``diplotaxis3-test`` :
 ```bash
 ssh diplotaxis1-test
 cd /opt/pod/theses-docker/
 docker cp theses-elasticsearch-setupcerts:/usr/share/elasticsearch/config/certs/ca.zip .
 docker cp theses-elasticsearch-setupcerts:/usr/share/elasticsearch/config/certs/certs.zip .
 
-scp certs.zip ca.zip diplotaxis2-test:/opt/pod/theses-es-cluster-docker/volumes/theses-elasticsearch-setupcerts/
+scp certs.zip diplotaxis2-test:/opt/pod/theses-es-cluster-docker/volumes/theses-elasticsearch-setupcerts/
+scp ca.zip   diplotaxis2-test:/opt/pod/theses-es-cluster-docker/volumes/theses-elasticsearch-setupcerts/
 
 ssh diplotaxis2-test
 cd /opt/pod/theses-es-cluster-docker/volumes/theses-elasticsearch-setupcerts/
 unzip certs.zip
 unzip ca.zip
 
-# Remarque : répéter l'opération sur diplotaxis3-test
+# Ensuite répéter la même opération sur diplotaxis3-test !
 ```
 
-Ensuite il faut créer un fichier ``/opt/pod/theses-es-cluster-docker/.env`` en partant du modèle ``.env-dist``.
+Ensuite il faut créer un fichier ``/opt/pod/theses-es-cluster-docker/.env`` en partant du [modèle ``.env-dist``](./.env-dist) :
 ```bash
+cd /opt/pod/theses-es-cluster-docker/
 cp .env-dist .env
 
-# régler ELASTIC_PASSWORD sur la même valeur que
-# dans le .env de theses-docker (diplotaxis1-test)
-# et régler surtout les variables suivantes:
+# régler ELASTIC_PASSWORD sur la même valeur que sur les 3 noeuds
+# et régler surtout les variables suivantes en prenant soins d'incrémenter le n° du noeud :
 # ELK_CLUSTER_NODE_NUMBER
 # ELK_CLUSTER_DISCOVER_SEED_HOSTS
 # ELK_CLUSTER_INITIAL_MASTER_NODES
 ```
 
-Et finalement on peut démarrer le noeud elasticsearch :
+Et finalement on peut démarrer le noeud elasticsearch qui rejoindra alors le cluster elasticsearch de theses.fr :
 ```bash
+cd /opt/pod/theses-es-cluster-docker/
 docker-compose up -d
 ```
 
