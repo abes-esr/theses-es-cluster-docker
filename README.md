@@ -41,7 +41,7 @@ Sur le premier noeud on va installer la pile logicielle complète de theses.fr q
 Sur ce premier noeud, les réglages particuliers à réaliser dans le ``.env`` sont les suivants :
 ```env
 ELK_CLUSTER_NODE_NUMBER=01
-ELK_CLUSTER_DISCOVER_SEED_HOSTS=diplotaxis2-test:10305,diplotaxis3-test:10305
+ELK_CLUSTER_DISCOVER_SEED_HOSTS=diplotaxis1-test:10305,diplotaxis2-test:10305,diplotaxis3-test:10305
 ELK_CLUSTER_INITIAL_MASTER_NODES=theses-es01,theses-es02,theses-es03
 ```
 
