@@ -12,7 +12,7 @@ On suppose ci-dessous un déploiement de 3 noeuds sur les serveurs suivants (mai
 - ``diplotaxis2-test``
 - ``diplotaxis3-test``
 
-Le déploiement d'un nouveau noeud elasticsearch suppose un déploiement préalable de l'application theses.fr (voir [``theses-docker``](https://github.com/abes-esr/theses-docker)) qui embarque en fait le premier noeud elasticsearch. L'installation un peu particulière de ce premier noeud est décrite dans la première partie de l'installation.
+Le déploiement d'un nouveau noeud elasticsearch suppose un déploiement préalable de l'application theses.fr (voir [``theses-docker``](https://github.com/abes-esr/theses-docker)) qui embarque en fait le premier noeud elasticsearch. L'installation un peu particulière de ce premier noeud est décrite dans la [première partie de l'installation](#installation--serveur-1--noeud-1).
 
 
 ### Installation : Serveur 1 / Noeud 1
