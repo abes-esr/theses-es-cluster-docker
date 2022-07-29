@@ -2,8 +2,7 @@
 
 (travail en cours)
 
-Configuration docker 🐳 pour déployer un nœud du cluster elasticsearch de theses.fr. Le déploiement d'un nouveau noeud elasticsearch suppose un déploiement préalable de l'application theses.fr (voir [``theses-docker``](https://github.com/abes-esr/theses-docker)) qui embarque un premier noeud elasticsearch.
-
+Configuration docker 🐳 pour déployer un nœud du cluster elasticsearch de theses.fr. 
 ## Installation
 
 Pour intégrer un noeud suplémentaire au cluster elasticsearch de theses.fr, voici la marche à suivre.
@@ -12,6 +11,9 @@ On suppose ci-dessous un déploiement de 3 noeuds sur les serveurs suivants (mai
 - ``diplotaxis1-test``
 - ``diplotaxis2-test``
 - ``diplotaxis3-test``
+
+Le déploiement d'un nouveau noeud elasticsearch suppose un déploiement préalable de l'application theses.fr (voir [``theses-docker``](https://github.com/abes-esr/theses-docker)) qui embarque en fait le premier noeud elasticsearch. L'installation un peu particulière de ce premier noeud est décrite dans la première partie de l'installation.
+
 
 ### Installation : Serveur 1 / Noeud 1
 
