@@ -36,7 +36,7 @@ ELK_CLUSTER_DISCOVER_SEED_HOSTS=diplotaxis1-test:10305,diplotaxis2-test:10305,di
 ELK_CLUSTER_INITIAL_MASTER_NODES=theses-es01,theses-es02,theses-es03
 ```
 
-Vous devez ensuite lancer l'application avec cette commande. Cette opération est indispensable avant de passer à l'étape suivante car elle va générer les certificats nécessaires à la communication inter-cluster (dans ``volumes/theses-elasticsearch-setupcerts/``, cf section suivante) :
+Vous devez ensuite lancer l'application classiquement avec cette commande :
 ```bash
 cd /opt/pod/theses-docker/
 docker-compose up -d
@@ -47,32 +47,11 @@ docker-compose up -d
 Le second et le troisième noeud elasticsearch de theses.fr sont respectivement déployés sur ``diplotaxis2-test`` et ``diplotaxis3-test`` (cette documentation permet d'extrapoler pour augmenter à 4, 5 ou 6 noeuds elasticsearch si c'était un jour nécessaire). La configuration nécessaire pour déployer ces noeuds suplémentaires est contenu dans ce présent dépôt. Voici les commandes à lancer sur les différents serveurs pour installer les noeuds.
 
 ```bash
-ssh diplotaxis2-test
 cd /opt/pod/
 git clone https://github.com/abes-esr/theses-es-cluster-docker.git
+
 cd /opt/pod/theses-es-cluster-docker/
-mkdir -p volumes/theses-elasticsearch-setupcerts/ && chmod 777 volumes/theses-elasticsearch-setupcerts/
 mkdir -p volumes/theses-elasticsearch/            && chmod 777 volumes/theses-elasticsearch/
-
-# Ensuite répéter la même opération sur diplotaxis3-test !
-```
-
-Vous devez ensuite récupérer les certificats générés par l'initialisation de ``theses-docker`` sur ``diplotaxis1-test`` (cf étape serveur 1 plus haut). Ce sont ces certificats qui permettront aux 3 noeuds elasticsearch de communiquer de façon sécurisée au sein du cluster elasticsearch. Voici une façon de  procéder pour les récupérer et les transmettre aux 2 autres noeuds elasticsearch qui sont sur les serveurs ``diplotaxis2-test`` et ``diplotaxis3-test`` :
-```bash
-ssh diplotaxis1-test
-cd /opt/pod/theses-docker/
-docker cp theses-elasticsearch-setupcerts:/usr/share/elasticsearch/config/certs/ca.zip .
-docker cp theses-elasticsearch-setupcerts:/usr/share/elasticsearch/config/certs/certs.zip .
-
-scp certs.zip diplotaxis2-test:/opt/pod/theses-es-cluster-docker/volumes/theses-elasticsearch-setupcerts/
-scp ca.zip   diplotaxis2-test:/opt/pod/theses-es-cluster-docker/volumes/theses-elasticsearch-setupcerts/
-
-ssh diplotaxis2-test
-cd /opt/pod/theses-es-cluster-docker/volumes/theses-elasticsearch-setupcerts/
-unzip certs.zip
-unzip ca.zip
-
-# Ensuite répéter la même opération sur diplotaxis3-test !
 ```
 
 Ensuite il faut créer un fichier ``/opt/pod/theses-es-cluster-docker/.env`` en partant du [modèle ``.env-dist``](./.env-dist) :
@@ -81,7 +60,7 @@ cd /opt/pod/theses-es-cluster-docker/
 cp .env-dist .env
 ```
 
-Régler alors ``ELASTIC_PASSWORD`` sur la même valeur que sur les 3 noeuds et régler surtout les variables suivantes en prenant soins d'incrémenter le n° du noeud dans ``ELK_CLUSTER_NODE_NUMBER`` :
+Régler surtout les variables suivantes en prenant soins d'incrémenter le n° du noeud dans ``ELK_CLUSTER_NODE_NUMBER`` sous la forme ``XX`` :
 ```env
 ELK_CLUSTER_NODE_NUMBER=02
 ELK_CLUSTER_DISCOVER_SEED_HOSTS=diplotaxis1-test:10305,diplotaxis2-test:10305,diplotaxis3-test:10305
@@ -96,9 +75,9 @@ docker-compose up -d
 
 ## Supervision
 
-Pour savoir si le cluster à correctement démarré avec ses 3 noeuds, tapez ceci (entrez le mot de passe ``ELASTIC_PASSWORD`` lorsqu'il sera demandé):
+Pour savoir si le cluster à correctement démarré avec ses 3 noeuds, tapez ceci:
 ```bash
- curl -k -u elastic https://diplotaxis1-test:10302/_cluster/health?pretty
+ curl http://diplotaxis1-test:10302/_cluster/health?pretty
 ```
 
 Si tout c'est bien passé, vous devriez avoir un retour de ce type :
@@ -150,7 +129,7 @@ On peut également observer les logs des noeuds quand un noeud rejoint le cluste
 
 ## Mémo
 
-L'authentification ELASTIC_PASSWORD n'est utilisée que pour l'API JSON d'elasticsearch. La communication entre les différents noeuds du cluster elasticsearch est réalisée en se basant sur le système de certificat qui est utilisé via la directive ``xpack.security.transport.ssl.enabled=true``
+L'authentification ELASTIC_PASSWORD n'est utilisée que pour l'API JSON d'elasticsearch. La communication entre les différents noeuds du cluster elasticsearch est réalisée en se basant sur le système de certificat qui est utilisé via la directive ``xpack.security.transport.ssl.enabled=true``. A noter que dans le cas où la securité est désactivée, la variable ELASTIC_PASSWORD n'est pas utilisée.
 
 Le port 9300 est utilisé (protocole binaire) pour faire communiquer les différents noeuds du cluster elasticsearch (attention à bien l'exposer sur les différents serveurs). Ce n'est pas le port 9200 qui lui est utilisé pour exposer l'API classique d'elasticsearch. Exemple de la configuration où ce port 9300 est utilisé :  
 ``ELK_CLUSTER_DISCOVER_SEED_HOSTS=theses-elasticsearch-01:9300,theses-elasticsearch-02:9300``
