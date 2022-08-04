@@ -10,7 +10,6 @@ services:
     container_name: theses-elasticsearch-${ELK_CLUSTER_NODE_NUMBER}
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELK_STACK_VERSION}
     volumes:
-      - ./volumes/theses-elasticsearch-setupcerts/:/usr/share/elasticsearch/config/certs/
       - ./volumes/theses-elasticsearch/:/usr/share/elasticsearch/data/
     ports:
       - ${ELK_ELASTIC_HTTP_PORT}:9200
@@ -20,19 +19,8 @@ services:
       - cluster.name=${ELK_CLUSTER_NAME}
       - cluster.initial_master_nodes=${ELK_CLUSTER_INITIAL_MASTER_NODES}
       - discovery.seed_hosts=${ELK_CLUSTER_DISCOVER_SEED_HOSTS}
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
       - bootstrap.memory_lock=true
-      - xpack.security.enabled=true
-      - xpack.security.http.ssl.enabled=true
-      - xpack.security.http.ssl.key=certs/es${ELK_CLUSTER_NODE_NUMBER}/es${ELK_CLUSTER_NODE_NUMBER}.key
-      - xpack.security.http.ssl.certificate=certs/es${ELK_CLUSTER_NODE_NUMBER}/es${ELK_CLUSTER_NODE_NUMBER}.crt
-      - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
-      - xpack.security.http.ssl.verification_mode=certificate
-      - xpack.security.transport.ssl.enabled=true
-      - xpack.security.transport.ssl.key=certs/es${ELK_CLUSTER_NODE_NUMBER}/es${ELK_CLUSTER_NODE_NUMBER}.key
-      - xpack.security.transport.ssl.certificate=certs/es${ELK_CLUSTER_NODE_NUMBER}/es${ELK_CLUSTER_NODE_NUMBER}.crt
-      - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
-      - xpack.security.transport.ssl.verification_mode=certificate
+      - xpack.security.enabled=false
       - xpack.license.self_generated.type=${ELK_LICENSE}
     mem_limit: ${ELK_MEM_LIMIT}
     ulimits:
@@ -43,7 +31,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -s --cacert config/certs/ca/ca.crt https://localhost:9200 | grep -q 'missing authentication credentials'",
+          "curl -s http://localhost:9200 | grep -q 'cluster_name'",
         ]
       interval: 10s
       timeout: 10s
