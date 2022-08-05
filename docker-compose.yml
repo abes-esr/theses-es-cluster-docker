@@ -3,9 +3,10 @@ version: "3.5"
 
 services:
 
-  ###################################################################
-  # Configuration pour ajouter un noeud dans le cluster elasticsearch
-  # de theses.fr / Voir la configuration dans .env-dist
+  #######################################
+  # theses-elasticsearch
+  # noeud n°2, 3, ... de l'elasticsearch de theses.fr
+  # c'est la configuration pour ajouter un noeud dans le cluster elasticsearch de theses.fr
   theses-elasticsearch:
     container_name: theses-elasticsearch-${ELK_CLUSTER_NODE_NUMBER}
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELK_STACK_VERSION}
