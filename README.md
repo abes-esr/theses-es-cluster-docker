@@ -28,15 +28,17 @@ ELK_CLUSTER_DISCOVER_SEED_HOSTS=diplotaxis1-test:10305,diplotaxis2-test:10305,di
 ELK_CLUSTER_INITIAL_MASTER_NODES=theses-es01,theses-es02,theses-es03
 ```
 
-Vous devez ensuite lancer l'application classiquement avec cette commande :
+Vous devez ensuite lancer theses.fr qui contient alors le premier noeud avec cette commande :
 ```bash
 cd /opt/pod/theses-docker/
 docker-compose up -d
 ```
 
+Remarque : il est important d'initialiser le premier noeud avant les noeuds suivants pour ne pas gêner le processus d'élection du noeud maître.
+
 ### Installation : Serveurs 2 & 3 / Noeuds 2 & 3
 
-Le second et le troisième noeud elasticsearch de theses.fr sont respectivement déployés sur ``diplotaxis2-test`` et ``diplotaxis3-test`` (cette documentation permet d'extrapoler pour augmenter à 4, 5 ou 6 noeuds elasticsearch si c'était un jour nécessaire). La configuration nécessaire pour déployer ces noeuds suplémentaires est contenu dans ce présent dépôt. Voici les commandes à lancer sur les différents serveurs pour installer les noeuds.
+Le second et le troisième noeud elasticsearch de theses.fr sont respectivement déployés sur ``diplotaxis2-test`` et ``diplotaxis3-test`` (cette documentation permet d'extrapoler pour augmenter à 4, 5 ou 6 noeuds elasticsearch si c'était un jour nécessaire). La configuration nécessaire pour déployer ces noeuds suplémentaires est contenue dans ce présent dépôt. Voici les commandes à lancer sur les différents serveurs pour installer les noeuds.
 
 ```bash
 cd /opt/pod/
@@ -59,11 +61,13 @@ ELK_CLUSTER_DISCOVER_SEED_HOSTS=diplotaxis1-test:10305,diplotaxis2-test:10305,di
 ELK_CLUSTER_INITIAL_MASTER_NODES=theses-es01,theses-es02,theses-es03
 ```
 
-Et finalement on peut démarrer le noeud elasticsearch qui rejoindra alors le cluster elasticsearch de theses.fr :
+Et finalement on peut démarrer les nouveaux noeud elasticsearch qui rejoindront alors le cluster elasticsearch de theses.fr :
 ```bash
 cd /opt/pod/theses-es-cluster-docker/
 docker-compose up -d
 ```
+
+Remarque : attention à ne pas initialiser les noeuds ``02``, ``03`` avant le noeud ``01`` car cela bloquera l'action d'association au cluster du nouveau noeud à cause du processus d'election du noeud maitre. A savoir qu'il est possible de débloquer cette situation mais cela nécessite des opérations particulières avec la variable ``ELK_CLUSTER_INITIAL_MASTER_NODES``. 
 
 ## Supervision
 
@@ -97,24 +101,22 @@ On peut également observer les logs des noeuds quand un noeud rejoint le cluste
 ```json
 # coté noeud 1
 {
- "@timestamp":"2022-07-27T14:56:55.732Z", "log.level": "INFO",
-  "message":"added {{theses-es02}{sH6jSIdMRRyQ5JVowchsyQ}{Sx1tZYh-Rca8nt3GQ2Z-ng}{theses-es02}{172.31.0.2}{172.31.0.2:9300}{cdfhilmrstw}}, term: 5, version: 158, reason: Publication{term=5, version=158}",
-  "ecs.version": "1.2.0","service.name":"ES_ECS","event.dataset":"elasticsearch.server","process.thread.name":"elasticsearch[theses-es01][clusterApplierService#updateTask][T#1]",
-  "log.logger":"org.elasticsearch.cluster.service.ClusterApplierService",
-  "elasticsearch.cluster.uuid":"Y4rayRuGRkasvpxF0DvGTg",
-  "elasticsearch.node.id":"I8qD98AIRRyidBDEs_WAqQ",
-  "elasticsearch.node.name":"theses-es01",
-  "elasticsearch.cluster.name":"theses-cluster"
+    "@timestamp":"2022-08-04T15:41:43.948Z", "log.level": "INFO",
+    "message":"node-join[{theses-es02}{CMmJ_H8pTFytXXQmpXzgyA}{KaN8C3iiS2-pOgy95ffbWg}{theses-es02}{172.19.0.2}{172.19.0.2:9300}{cdfhilmrstw} joining], term: 8, version: 169, delta: added {{theses-es02}{CMmJ_H8pTFytXXQmpXzgyA}{KaN8C3iiS2-pOgy95ffbWg}{theses-es02}{172.19.0.2}{172.19.0.2:9300}{cdfhilmrstw}}",
+    "ecs.version": "1.2.0","service.name":"ES_ECS","event.dataset":"elasticsearch.server",
+    "process.thread.name":"elasticsearch[theses-es01][masterService#updateTask][T#1]",
+    "log.logger":"org.elasticsearch.cluster.service.MasterService","elasticsearch.cluster.uuid":"EA2ApdRuRcCnbCfciirzLw","elasticsearch.node.id":"PWZosK0yTE-JU3WepmBm8g",
+    "elasticsearch.node.name":"theses-es01","elasticsearch.cluster.name":"theses-cluster"
 }
 
 # coté noeud 2
 {
-  "@timestamp":"2022-07-27T14:56:55.223Z", "log.level": "INFO",
-  "message":"master node changed {previous [], current [{theses-es01}{I8qD98AIRRyidBDEs_WAqQ}{8Bc5pUJnTmyG6qNhZDIFTw}{theses-es01}{172.31.0.6}{172.31.0.6:9300}{cdfhilmrstw}]}, added {{theses-es01}{I8qD98AIRRyidBDEs_WAqQ}{8Bc5pUJnTmyG6qNhZDIFTw}{theses-es01}{172.31.0.6}{172.31.0.6:9300}{cdfhilmrstw}}, term: 5, version: 158, reason: ApplyCommitRequest{term=5, version=158, sourceNode={theses-es01}{I8qD98AIRRyidBDEs_WAqQ}{8Bc5pUJnTmyG6qNhZDIFTw}{theses-es01}{172.31.0.6}{172.31.0.6:9300}{cdfhilmrstw}{ml.machine_memory=1073741824, ml.max_jvm_size=536870912, xpack.installed=true}}",
-  "ecs.version": "1.2.0","service.name":"ES_ECS","event.dataset":"elasticsearch.server","process.thread.name":"elasticsearch[theses-es02][clusterApplierService#updateTask][T#1]",
-  "log.logger":"org.elasticsearch.cluster.service.ClusterApplierService",
-  "elasticsearch.node.name":"theses-es02",
-  "elasticsearch.cluster.name":"theses-cluster"
+  "@timestamp":"2022-08-04T15:41:44.081Z", "log.level": "INFO",
+  "message":"master node changed {previous [], current [{theses-es01}{PWZosK0yTE-JU3WepmBm8g}{BpgvdReTTwuft4e3CTkCyA}{theses-es01}{172.19.0.3}{172.19.0.3:9300}{cdfhilmrstw}]}, added {{theses-es01}{PWZosK0yTE-JU3WepmBm8g}{BpgvdReTTwuft4e3CTkCyA}{theses-es01}{172.19.0.3}{172.19.0.3:9300}{cdfhilmrstw}}, term: 8, version: 169, reason: ApplyCommitRequest{term=8, version=169, sourceNode={theses-es01}{PWZosK0yTE-JU3WepmBm8g}{BpgvdReTTwuft4e3CTkCyA}{theses-es01}{172.19.0.3}{172.19.0.3:9300}{cdfhilmrstw}{ml.machine_memory=1073741824, ml.max_jvm_size=536870912, xpack.installed=true}}",
+  "ecs.version": "1.2.0","service.name":"ES_ECS","event.dataset":"elasticsearch.server",
+  "process.thread.name":"elasticsearch[theses-es02][clusterApplierService#updateTask][T#1]","
+  log.logger":"org.elasticsearch.cluster.service.ClusterApplierService",
+  "elasticsearch.node.name":"theses-es02","elasticsearch.cluster.name":"theses-cluster"
 }
 ```
 
