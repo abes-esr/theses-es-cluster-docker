@@ -53,7 +53,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -s --cacert config/certs/ca/ca.crt https://localhost:9200 | grep -q 'missing authentication credentials'",
+          "curl -s --cacert config/certs/ca/ca.crt https://localhost:${ELK_ELASTIC_HTTP_PORT} | grep -q 'missing authentication credentials'",
         ]
       interval: 10s
       timeout: 10s
