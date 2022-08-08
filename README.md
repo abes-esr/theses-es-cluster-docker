@@ -3,6 +3,14 @@
 (travail en cours)
 
 Configuration docker 🐳 pour déployer un nœud du cluster elasticsearch de theses.fr (voir aussi le dépôt [``theses-docker``](https://github.com/abes-esr/theses-docker)). 
+
+## Prérequis
+
+
+- docker
+- docker-compose
+- réglages ``vm.max_map_count`` pour elasticsearch (cf [FAQ pour les détails du réglage](https://github.com/abes-esr/theses-docker/blob/develop/README-faq.md#comment-r%C3%A9gler-vmmax_map_count-pour-elasticsearch-))
+
 ## Installation
 
 Pour intégrer un noeud suplémentaire au cluster elasticsearch de theses.fr, voici la marche à suivre.
