@@ -59,15 +59,11 @@ mkdir -p volumes/theses-elasticsearch/            && chmod 777 volumes/theses-el
 
 Vous devez ensuite récupérer les certificats générés par l'initialisation de ``theses-docker`` sur ``diplotaxis1-test`` (cf étape serveur 1 plus haut). Ce sont ces certificats qui permettront aux 3 noeuds elasticsearch de communiquer de façon sécurisée au sein du cluster elasticsearch. Voici une façon de  procéder pour les récupérer et les transmettre aux 2 autres noeuds elasticsearch qui sont sur les serveurs ``diplotaxis2-test`` et ``diplotaxis3-test`` :
 ```bash
-ssh diplotaxis1-test
-cd /opt/pod/theses-docker/
-docker cp theses-elasticsearch-setupcerts:/usr/share/elasticsearch/config/certs/ca.zip .
-docker cp theses-elasticsearch-setupcerts:/usr/share/elasticsearch/config/certs/certs.zip .
-
-scp certs.zip diplotaxis2-test:/opt/pod/theses-es-cluster-docker/volumes/theses-elasticsearch-setupcerts/
-scp ca.zip   diplotaxis2-test:/opt/pod/theses-es-cluster-docker/volumes/theses-elasticsearch-setupcerts/
-
 ssh diplotaxis2-test
+scp \
+  diplotaxis1-test:/opt/pod/theses-docker/volumes/theses-elasticsearch-setupcerts/*.zip \
+  /opt/pod/theses-es-cluster-docker/volumes/theses-elasticsearch-setupcerts/
+
 cd /opt/pod/theses-es-cluster-docker/volumes/theses-elasticsearch-setupcerts/
 unzip certs.zip
 unzip ca.zip
