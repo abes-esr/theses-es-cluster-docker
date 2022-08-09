@@ -65,8 +65,8 @@ scp \
   /opt/pod/theses-es-cluster-docker/volumes/theses-elasticsearch-setupcerts/
 
 cd /opt/pod/theses-es-cluster-docker/volumes/theses-elasticsearch-setupcerts/
-unzip certs.zip
-unzip ca.zip
+unzip -o certs.zip
+unzip -o ca.zip
 
 # Ensuite répéter la même opération sur diplotaxis3-test !
 ```
