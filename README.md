@@ -29,12 +29,12 @@ Sur le premier serveur ``diplotaxis1-dev`` on va installer le premier noeud elas
 
 Pour installer ce noeud, il faut se reporter à la [section installation du dépôt ``theses-docker``](README.md#installation).
 
-Ensuite sur ce premier noeud, la seule chose à régler concerne les paramètres suivants dans le ``.env`` (ce qui est important c'est de bien choisir le numéro "01" pour le numéro du noeud cf ``ELK_CLUSTER_NODE_NUMBER`` et le bon host du noeud courant qui sera utilisé par les autres noeuds sur les autres serveurs pour rejoindre ce noeud cf ``ELK_CLUSTER_PUBLISH_HOST``) :
+Ensuite sur ce premier noeud, la seule chose à régler concerne les paramètres suivants dans le ``.env`` (ce qui est important c'est de bien choisir le numéro "01" pour le numéro du noeud cf ``THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER`` et le bon host du noeud courant qui sera utilisé par les autres noeuds sur les autres serveurs pour rejoindre ce noeud cf ``THESES_ELASTICSEARCH_CLUSTER_PUBLISH_HOST``) :
 ```env
-ELK_CLUSTER_NODE_NUMBER=01
-ELK_CLUSTER_PUBLISH_HOST=diplotaxis1-dev.v212.abes.fr
-ELK_CLUSTER_DISCOVER_SEED_HOSTS=diplotaxis1-dev.v212.abes.fr:10305,diplotaxis2-dev.v212.abes.fr:10305,diplotaxis3-dev.v212.abes.fr:10305
-ELK_CLUSTER_INITIAL_MASTER_NODES=theses-es01,theses-es02,theses-es03
+THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER=01
+THESES_ELASTICSEARCH_CLUSTER_PUBLISH_HOST=diplotaxis1-dev.v212.abes.fr
+THESES_ELASTICSEARCH_CLUSTER_DISCOVER_SEED_HOSTS=diplotaxis1-dev.v212.abes.fr:10305,diplotaxis2-dev.v212.abes.fr:10305,diplotaxis3-dev.v212.abes.fr:10305
+THESES_ELASTICSEARCH_CLUSTER_INITIAL_MASTER_NODES=theses-es01,theses-es02,theses-es03
 ```
 
 Vous devez ensuite lancer l'application avec cette commande. Cette opération est indispensable avant de passer à l'étape suivante car elle va générer les certificats nécessaires à la communication inter-cluster (dans ``volumes/theses-elasticsearch-setupcerts/``, cf section suivante) :
@@ -78,12 +78,12 @@ cd /opt/pod/theses-es-cluster-docker/
 cp .env-dist .env
 ```
 
-Régler alors ``ELASTIC_PASSWORD`` sur la même valeur que sur les 3 noeuds, et régler surtout les variables suivantes en prenant soins d'incrémenter le n° du noeud dans ``ELK_CLUSTER_NODE_NUMBER`` et indiquer le bon host du noeud courant qui sera utilisé par les autres noeuds sur les autres serveurs pour rejoindre ce noeud cf ``ELK_CLUSTER_PUBLISH_HOST`` :
+Régler alors ``THESES_ELASTICSEARCH_PASSWORD`` sur la même valeur que sur les 3 noeuds, et régler surtout les variables suivantes en prenant soins d'incrémenter le n° du noeud dans ``THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER`` et indiquer le bon host du noeud courant qui sera utilisé par les autres noeuds sur les autres serveurs pour rejoindre ce noeud cf ``THESES_ELASTICSEARCH_CLUSTER_PUBLISH_HOST`` :
 ```env
-ELK_CLUSTER_NODE_NUMBER=02
-ELK_CLUSTER_PUBLISH_HOST=diplotaxis2-dev.v212.abes.fr
-ELK_CLUSTER_DISCOVER_SEED_HOSTS=diplotaxis1-dev.v212.abes.fr:10305,diplotaxis2-dev.v212.abes.fr:10305,diplotaxis3-dev.v212.abes.fr:10305
-ELK_CLUSTER_INITIAL_MASTER_NODES=theses-es01,theses-es02,theses-es03
+THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER=02
+THESES_ELASTICSEARCH_CLUSTER_PUBLISH_HOST=diplotaxis2-dev.v212.abes.fr
+THESES_ELASTICSEARCH_CLUSTER_DISCOVER_SEED_HOSTS=diplotaxis1-dev.v212.abes.fr:10305,diplotaxis2-dev.v212.abes.fr:10305,diplotaxis3-dev.v212.abes.fr:10305
+THESES_ELASTICSEARCH_CLUSTER_INITIAL_MASTER_NODES=theses-es01,theses-es02,theses-es03
 ```
 
 Et finalement on peut démarrer le noeud elasticsearch qui rejoindra alors le cluster elasticsearch de theses.fr :
@@ -94,7 +94,7 @@ docker-compose up -d
 
 ## Supervision
 
-Pour savoir si le cluster à correctement démarré avec ses 3 noeuds, tapez ceci (entrez le mot de passe ``ELASTIC_PASSWORD`` lorsqu'il sera demandé):
+Pour savoir si le cluster à correctement démarré avec ses 3 noeuds, tapez ceci (entrez le mot de passe ``THESES_ELASTICSEARCH_PASSWORD`` lorsqu'il sera demandé):
 ```bash
  curl -k -u elastic https://diplotaxis1-dev.v212.abes.fr:10302/_cluster/health?pretty
 ```
@@ -148,7 +148,7 @@ On peut également observer les logs des noeuds quand un noeud rejoint le cluste
 
 ## Mémo
 
-L'authentification ELASTIC_PASSWORD n'est utilisée que pour l'API JSON d'elasticsearch. La communication entre les différents noeuds du cluster elasticsearch est réalisée en se basant sur le système de certificat qui est utilisé via la directive ``xpack.security.transport.ssl.enabled=true``
+L'authentification THESES_ELASTICSEARCH_PASSWORD n'est utilisée que pour l'API JSON d'elasticsearch. La communication entre les différents noeuds du cluster elasticsearch est réalisée en se basant sur le système de certificat qui est utilisé via la directive ``xpack.security.transport.ssl.enabled=true``
 
 Le port 9300 est utilisé (protocole binaire) pour faire communiquer les différents noeuds du cluster elasticsearch (attention à bien l'exposer sur les différents serveurs). Ce n'est pas le port 9200 qui lui est utilisé pour exposer l'API classique d'elasticsearch. Exemple de la configuration où ce port 9300 est utilisé :  
-``ELK_CLUSTER_DISCOVER_SEED_HOSTS=theses-elasticsearch-01:9300,theses-elasticsearch-02:9300``
+``THESES_ELASTICSEARCH_CLUSTER_DISCOVER_SEED_HOSTS=theses-elasticsearch-01:9300,theses-elasticsearch-02:9300``

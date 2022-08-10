@@ -7,8 +7,8 @@ services:
   # Configuration pour ajouter un noeud dans le cluster elasticsearch
   # de theses.fr / Voir la configuration dans .env-dist
   theses-elasticsearch:
-    container_name: theses-elasticsearch-${ELK_CLUSTER_NODE_NUMBER}
-    image: docker.elastic.co/elasticsearch/elasticsearch:${ELK_STACK_VERSION}
+    container_name: theses-elasticsearch-${THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER}
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.3.0
     restart: unless-stopped
     volumes:
       - ./volumes/theses-elasticsearch-setupcerts/:/usr/share/elasticsearch/config/certs/
@@ -16,36 +16,38 @@ services:
     ports:
       # réglage explicites des ports internes et externes pour pouvoir fonctionner en cluster
       # cf https://blog.cri.epita.fr/post/2019-06-10-elasticsearch-cluster-formation-issue/
-      - ${ELK_ELASTIC_HTTP_PORT}:${ELK_ELASTIC_HTTP_PORT}
-      - ${ELK_ELASTIC_TRANSPORT_PORT}:${ELK_ELASTIC_TRANSPORT_PORT}
+      - ${THESES_ELASTICSEARCH_HTTP_PORT}:${THESES_ELASTICSEARCH_HTTP_PORT}
+      - ${THESES_ELASTICSEARCH_TRANSPORT_PORT}:${THESES_ELASTICSEARCH_TRANSPORT_PORT}
     environment:
       # mot de passe superadmin correspondant au login "elastic"
-      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTIC_PASSWORD=${THESES_ELASTICSEARCH_PASSWORD}
       # réglage explicites des ports internes et externes pour pouvoir fonctionner en cluster
       # cf https://blog.cri.epita.fr/post/2019-06-10-elasticsearch-cluster-formation-issue/
-      - http.port=${ELK_ELASTIC_HTTP_PORT}
-      - transport.port=${ELK_ELASTIC_TRANSPORT_PORT}
-      - network.publish_host=${ELK_CLUSTER_PUBLISH_HOST}
+      - http.port=${THESES_ELASTICSEARCH_HTTP_PORT}
+      - transport.port=${THESES_ELASTICSEARCH_TRANSPORT_PORT}
+      - network.publish_host=${THESES_ELASTICSEARCH_CLUSTER_PUBLISH_HOST}
       # paramétrage du cluster elasticsearch
-      - node.name=theses-es${ELK_CLUSTER_NODE_NUMBER}
-      - cluster.name=${ELK_CLUSTER_NAME}
-      - cluster.initial_master_nodes=${ELK_CLUSTER_INITIAL_MASTER_NODES}
-      - discovery.seed_hosts=${ELK_CLUSTER_DISCOVER_SEED_HOSTS}
+      - node.name=theses-es${THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER}
+      - cluster.name=${THESES_ELASTICSEARCH_CLUSTER_NAME}
+      - cluster.initial_master_nodes=${THESES_ELASTICSEARCH_CLUSTER_INITIAL_MASTER_NODES}
+      - discovery.seed_hosts=${THESES_ELASTICSEARCH_CLUSTER_DISCOVER_SEED_HOSTS}
       - bootstrap.memory_lock=true
       # paramètres de sécurité d'elasticsearch
       - xpack.security.enabled=true
       - xpack.security.http.ssl.enabled=true
-      - xpack.security.http.ssl.key=certs/es${ELK_CLUSTER_NODE_NUMBER}/es${ELK_CLUSTER_NODE_NUMBER}.key
-      - xpack.security.http.ssl.certificate=certs/es${ELK_CLUSTER_NODE_NUMBER}/es${ELK_CLUSTER_NODE_NUMBER}.crt
+      - xpack.security.http.ssl.key=certs/es${THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER}/es${THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER}.key
+      - xpack.security.http.ssl.certificate=certs/es${THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER}/es${THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER}.crt
       - xpack.security.http.ssl.certificate_authorities=certs/ca/ca.crt
       - xpack.security.http.ssl.verification_mode=certificate
       - xpack.security.transport.ssl.enabled=true
-      - xpack.security.transport.ssl.key=certs/es${ELK_CLUSTER_NODE_NUMBER}/es${ELK_CLUSTER_NODE_NUMBER}.key
-      - xpack.security.transport.ssl.certificate=certs/es${ELK_CLUSTER_NODE_NUMBER}/es${ELK_CLUSTER_NODE_NUMBER}.crt
+      - xpack.security.transport.ssl.key=certs/es${THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER}/es${THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER}.key
+      - xpack.security.transport.ssl.certificate=certs/es${THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER}/es${THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER}.crt
       - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
       - xpack.security.transport.ssl.verification_mode=certificate
       - xpack.license.self_generated.type=${ELK_LICENSE}
-    mem_limit: ${ELK_MEM_LIMIT}
+      # le port http pour le healthcheck d'elasticsearch
+      - THESES_ELASTICSEARCH_HTTP_PORT=${THESES_ELASTICSEARCH_HTTP_PORT}
+    mem_limit: ${THESES_ELASTICSEARCH_MEM_LIMIT}
     ulimits:
       memlock:
         soft: -1
@@ -54,7 +56,7 @@ services:
       test:
         [
           "CMD-SHELL",
-          "curl -s --cacert config/certs/ca/ca.crt -u elastic:${ELASTIC_PASSWORD} 'https://localhost:${ELK_ELASTIC_HTTP_PORT}/_cluster/health?timeout=5s' | grep -q '\"status\":\"green\"'",
+          "curl -s --cacert config/certs/ca/ca.crt -u elastic:${THESES_ELASTICSEARCH_PASSWORD} 'https://localhost:${THESES_ELASTICSEARCH_HTTP_PORT}/_cluster/health?timeout=5s' | grep -q '\"status\":\"green\"'",
         ]
       interval: 10s
       timeout: 10s
@@ -73,10 +75,10 @@ services:
 # pour lancer deux noeuds sur la même machine, il suffit alors de :
 # 1) créer ce réseau via "docker network create theses-docker-es-cluster-network"
 # 2) pour le noeud 2 utiliser la config suivante : https://github.com/abes-esr/theses-es-cluster-docker/
-# 3) paramétrer le .env de chaque noeud avec ELK_CLUSTER_NODE_NUMBER qui vaut "01" ou "02" (fonction du noeud) :
-#    ELK_CLUSTER_NODE_NUMBER=01
-#    ELK_CLUSTER_DISCOVER_SEED_HOSTS=theses-elasticsearch-01:9300,theses-elasticsearch-02:9300
-#    ELK_CLUSTER_INITIAL_MASTER_NODES=theses-es01,theses-es02
+# 3) paramétrer le .env de chaque noeud avec THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER qui vaut "01" ou "02" (fonction du noeud) :
+#    THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER=01
+#    THESES_ELASTICSEARCH_CLUSTER_DISCOVER_SEED_HOSTS=theses-elasticsearch-01:9300,theses-elasticsearch-02:9300
+#    THESES_ELASTICSEARCH_CLUSTER_INITIAL_MASTER_NODES=theses-es01,theses-es02
 # 4) lancer les deux noeuds dans leurs deux répertoires dédié avec "docker-compose up"
 #networks:
 #  default:
