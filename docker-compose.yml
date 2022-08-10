@@ -9,6 +9,7 @@ services:
   theses-elasticsearch:
     container_name: theses-elasticsearch-${ELK_CLUSTER_NODE_NUMBER}
     image: docker.elastic.co/elasticsearch/elasticsearch:${ELK_STACK_VERSION}
+    restart: unless-stopped
     volumes:
       - ./volumes/theses-elasticsearch-setupcerts/:/usr/share/elasticsearch/config/certs/
       - ./volumes/theses-elasticsearch/:/usr/share/elasticsearch/data/
