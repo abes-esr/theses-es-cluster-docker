@@ -45,6 +45,8 @@ services:
       - xpack.security.transport.ssl.certificate_authorities=certs/ca/ca.crt
       - xpack.security.transport.ssl.verification_mode=certificate
       - xpack.license.self_generated.type=${ELK_LICENSE}
+      # licence à utiliser (basic ou trial pour un essai de 30 jours)
+      - xpack.license.self_generated.type=basic
       # le port http pour le healthcheck d'elasticsearch
       - THESES_ELASTICSEARCH_HTTP_PORT=${THESES_ELASTICSEARCH_HTTP_PORT}
     mem_limit: ${THESES_ELASTICSEARCH_MEM_LIMIT}
