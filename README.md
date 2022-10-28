@@ -52,8 +52,9 @@ ssh diplotaxis2-dev
 cd /opt/pod/
 git clone https://github.com/abes-esr/theses-es-cluster-docker.git
 cd /opt/pod/theses-es-cluster-docker/
-mkdir -p volumes/theses-elasticsearch-setupcerts/ && chmod 777 volumes/theses-elasticsearch-setupcerts/
 mkdir -p volumes/theses-elasticsearch/            && chmod 777 volumes/theses-elasticsearch/
+mkdir -p volumes/theses-elasticsearch-tmp/        && chmod 777 volumes/theses-elasticsearch-tmp
+mkdir -p volumes/theses-elasticsearch-setupcerts/ && chmod 777 volumes/theses-elasticsearch-setupcerts/
 
 # Ensuite répéter la même opération sur diplotaxis3-dev !
 ```

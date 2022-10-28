@@ -11,8 +11,9 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.3.0
     restart: unless-stopped
     volumes:
-      - ./volumes/theses-elasticsearch-setupcerts/:/usr/share/elasticsearch/config/certs/
       - ./volumes/theses-elasticsearch/:/usr/share/elasticsearch/data/
+      - ./volumes/theses-elasticsearch-tmp/:/usr/share/elasticsearch/tmp/
+      - ./volumes/theses-elasticsearch-setupcerts/:/usr/share/elasticsearch/config/certs/
     ports:
       # réglage explicites des ports internes et externes pour pouvoir fonctionner en cluster
       # cf https://blog.cri.epita.fr/post/2019-06-10-elasticsearch-cluster-formation-issue/
@@ -32,6 +33,12 @@ services:
       - cluster.initial_master_nodes=${THESES_ELASTICSEARCH_CLUSTER_INITIAL_MASTER_NODES}
       - discovery.seed_hosts=${THESES_ELASTICSEARCH_CLUSTER_DISCOVER_SEED_HOSTS}
       - bootstrap.memory_lock=true
+      # pour éviter que les dump geoip soient téléchargés régulièrement dans /tmp/
+      # cf https://abes-esr.atlassian.net/browse/THE-188
+      # cf https://www.elastic.co/guide/en/elasticsearch/reference/current/geoip-processor.html#geoip-cluster-settings
+      # cf https://www.elastic.co/guide/en/elasticsearch/reference/current/executable-jna-tmpdir.html
+      - ingest.geoip.downloader.enabled=false
+      - ES_TMPDIR=/usr/share/elasticsearch/tmp
       # paramètres de sécurité d'elasticsearch
       - xpack.security.enabled=true
       - xpack.security.http.ssl.enabled=true
