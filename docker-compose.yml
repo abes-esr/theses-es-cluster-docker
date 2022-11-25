@@ -56,7 +56,7 @@ services:
       - xpack.license.self_generated.type=basic
       # le port http pour le healthcheck d'elasticsearch
       - THESES_ELASTICSEARCH_HTTP_PORT=${THESES_ELASTICSEARCH_HTTP_PORT}
-    mem_limit: ${THESES_ELASTICSEARCH_MEM_LIMIT}
+    mem_limit: ${MEM_LIMIT}
     # réglage ulimits pour désactiver le swap: https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_disable_swapping
     ulimits:
       memlock:
