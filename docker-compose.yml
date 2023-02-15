@@ -10,6 +10,7 @@ services:
     container_name: theses-elasticsearch-${THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER}
     image: docker.elastic.co/elasticsearch/elasticsearch:8.3.0
     restart: unless-stopped
+    mem_limit: ${MEM_LIMIT}
     volumes:
       - ./volumes/theses-elasticsearch/:/usr/share/elasticsearch/data/
       - ./volumes/theses-elasticsearch-tmp/:/usr/share/elasticsearch/tmp/
@@ -58,7 +59,9 @@ services:
       - xpack.license.self_generated.type=basic
       # le port http pour le healthcheck d'elasticsearch
       - THESES_ELASTICSEARCH_HTTP_PORT=${THESES_ELASTICSEARCH_HTTP_PORT}
-    mem_limit: ${MEM_LIMIT}
+      # pour les sauvegardes (snapshots)
+      - path.repo=/usr/share/elasticsearch/backup/
+
     # réglage ulimits pour désactiver le swap: https://www.elastic.co/guide/en/elasticsearch/reference/current/docker.html#_disable_swapping
     ulimits:
       memlock:
