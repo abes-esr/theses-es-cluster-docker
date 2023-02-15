@@ -1,6 +1,5 @@
 .env
-volumes/theses-elasticsearch/
-volumes/theses-elasticsearch-setupcerts/
+volumes
 ca.zip
 certs.zip
 
