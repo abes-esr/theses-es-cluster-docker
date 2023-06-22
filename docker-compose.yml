@@ -11,12 +11,13 @@ services:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.3.0
     restart: unless-stopped
     mem_limit: ${MEM_LIMIT}
+    memswap_limit: ${MEM_LIMIT}
+    cpus: ${CPU_LIMIT}
     volumes:
       - ./volumes/theses-elasticsearch/:/usr/share/elasticsearch/data/
       - ./volumes/theses-elasticsearch-tmp/:/usr/share/elasticsearch/tmp/
       - ./volumes/theses-elasticsearch-setupcerts/:/usr/share/elasticsearch/config/certs/
       - ./volumes/theses-elasticsearch-backup/:${THESES_ELASTICSEARCH_SNAPSHOTS_DIR}
-
     ports:
       # réglage explicites des ports internes et externes pour pouvoir fonctionner en cluster
       # cf https://blog.cri.epita.fr/post/2019-06-10-elasticsearch-cluster-formation-issue/
