@@ -1,7 +1,5 @@
 # theses-es-cluster-docker
 
-(travail en cours)
-
 Configuration docker 🐳 pour déployer un nœud du cluster elasticsearch de theses.fr (voir aussi le dépôt [``theses-docker``](https://github.com/abes-esr/theses-docker)). 
 
 ## Prérequis
@@ -25,17 +23,19 @@ Le déploiement d'un nouveau noeud elasticsearch suppose un déploiement préala
 
 ### Installation : Serveur 1 / Noeud 1
 
-Sur le premier serveur ``diplotaxis1-dev`` on va installer le premier noeud elasticsearch en compagnie de toute la pile logicielle de theses.fr. Il y aura donc sur ce premier serveur tous les modules de theses.fr ainsi que le premier noeud du cluster elasticsearch et aussi le kibana d'administration.
+Sur le premier serveur ``diplotaxis1-dev`` on va installer le premier noeud elasticsearch en compagnie de toute la pile logicielle de theses.fr (api-recherche, api-diffusion, seo, batch-indexation ...). Il y aura donc sur ce premier serveur tous les modules de theses.fr ainsi que le premier noeud du cluster elasticsearch et aussi le kibana d'administration.
 
 Pour installer ce noeud, il faut se reporter à la [section installation du dépôt ``theses-docker``](README.md#installation).
 
-Ensuite sur ce premier noeud, la seule chose à régler concerne les paramètres suivants dans le ``.env`` (ce qui est important c'est de bien choisir le numéro "01" pour le numéro du noeud cf ``THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER`` et le bon host du noeud courant qui sera utilisé par les autres noeuds sur les autres serveurs pour rejoindre ce noeud cf ``THESES_ELASTICSEARCH_CLUSTER_PUBLISH_HOST``) :
+Ensuite sur ce premier noeud, la seule chose à régler concerne les paramètres suivants dans le ``.env`` :
 ```env
-THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER=01
+THESES_ELASTICSEARCH_CLUSTER_NODE_ID=01
+THESES_ELASTICSEARCH_CLUSTER_NODE_ROLES=[]
 THESES_ELASTICSEARCH_CLUSTER_PUBLISH_HOST=diplotaxis1-dev.v212.abes.fr
 THESES_ELASTICSEARCH_CLUSTER_DISCOVER_SEED_HOSTS=diplotaxis1-dev.v212.abes.fr:10305,diplotaxis2-dev.v212.abes.fr:10305,diplotaxis3-dev.v212.abes.fr:10305
-THESES_ELASTICSEARCH_CLUSTER_INITIAL_MASTER_NODES=theses-es01,theses-es02,theses-es03
+THESES_ELASTICSEARCH_CLUSTER_INITIAL_MASTER_NODES=theses-es-02,theses-es-03
 ```
+Ce qui est important c'est de bien choisir le numéro "01" pour le numéro du noeud (cf ``THESES_ELASTICSEARCH_CLUSTER_NODE_ID``), le bon host du noeud courant qui sera utilisé par les autres noeuds sur les autres serveurs pour rejoindre ce noeud (cf ``THESES_ELASTICSEARCH_CLUSTER_PUBLISH_HOST``), et les rôles de ce noeud qui doivent être vides ce qui permet ainsi de lui donner le rôle de noeud coordinateur (chargé de la répartition de charge au sein du cluster).
 
 Vous devez ensuite lancer l'application avec cette commande. Cette opération est indispensable avant de passer à l'étape suivante car elle va générer les certificats nécessaires à la communication inter-cluster (dans ``volumes/theses-elasticsearch-setupcerts/``, cf section suivante) :
 ```bash
@@ -79,12 +79,13 @@ cd /opt/pod/theses-es-cluster-docker/
 cp .env-dist .env
 ```
 
-Régler alors ``THESES_ELASTICSEARCH_PASSWORD`` sur la même valeur que sur les 3 noeuds, et régler surtout les variables suivantes en prenant soins d'incrémenter le n° du noeud dans ``THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER`` et indiquer le bon host du noeud courant qui sera utilisé par les autres noeuds sur les autres serveurs pour rejoindre ce noeud cf ``THESES_ELASTICSEARCH_CLUSTER_PUBLISH_HOST`` :
+Régler alors ``THESES_ELASTICSEARCH_PASSWORD`` sur la même valeur que sur les 3 noeuds, et régler surtout les variables suivantes en prenant soins d'incrémenter le n° du noeud dans ``THESES_ELASTICSEARCH_CLUSTER_NODE_ID``, d'indiquer les rôles ``[data,master]`` dans ``THESES_ELASTICSEARCH_CLUSTER_NODE_ROLES`` et indiquer le bon host du noeud courant qui sera utilisé par les autres noeuds sur les autres serveurs pour rejoindre ce noeud cf ``THESES_ELASTICSEARCH_CLUSTER_PUBLISH_HOST`` :
 ```env
-THESES_ELASTICSEARCH_CLUSTER_NODE_NUMBER=02
+THESES_ELASTICSEARCH_CLUSTER_NODE_ID=02
+THESES_ELASTICSEARCH_CLUSTER_NODE_ROLES=[data,master]
 THESES_ELASTICSEARCH_CLUSTER_PUBLISH_HOST=diplotaxis2-dev.v212.abes.fr
 THESES_ELASTICSEARCH_CLUSTER_DISCOVER_SEED_HOSTS=diplotaxis1-dev.v212.abes.fr:10305,diplotaxis2-dev.v212.abes.fr:10305,diplotaxis3-dev.v212.abes.fr:10305
-THESES_ELASTICSEARCH_CLUSTER_INITIAL_MASTER_NODES=theses-es01,theses-es02,theses-es03
+THESES_ELASTICSEARCH_CLUSTER_INITIAL_MASTER_NODES=theses-es-02,theses-es-03
 ```
 
 Et finalement on peut démarrer le noeud elasticsearch qui rejoindra alors le cluster elasticsearch de theses.fr :
@@ -127,18 +128,18 @@ On peut également observer les logs des noeuds quand un noeud rejoint le cluste
 {
  "@timestamp":"2022-07-27T14:56:55.732Z", "log.level": "INFO",
   "message":"added {{theses-es02}{sH6jSIdMRRyQ5JVowchsyQ}{Sx1tZYh-Rca8nt3GQ2Z-ng}{theses-es02}{172.31.0.2}{172.31.0.2:9300}{cdfhilmrstw}}, term: 5, version: 158, reason: Publication{term=5, version=158}",
-  "ecs.version": "1.2.0","service.name":"ES_ECS","event.dataset":"elasticsearch.server","process.thread.name":"elasticsearch[theses-es01][clusterApplierService#updateTask][T#1]",
+  "ecs.version": "1.2.0","service.name":"ES_ECS","event.dataset":"elasticsearch.server","process.thread.name":"elasticsearch[theses-es-01][clusterApplierService#updateTask][T#1]",
   "log.logger":"org.elasticsearch.cluster.service.ClusterApplierService",
   "elasticsearch.cluster.uuid":"Y4rayRuGRkasvpxF0DvGTg",
   "elasticsearch.node.id":"I8qD98AIRRyidBDEs_WAqQ",
-  "elasticsearch.node.name":"theses-es01",
+  "elasticsearch.node.name":"theses-es-01",
   "elasticsearch.cluster.name":"theses-cluster"
 }
 
 # coté noeud 2
 {
   "@timestamp":"2022-07-27T14:56:55.223Z", "log.level": "INFO",
-  "message":"master node changed {previous [], current [{theses-es01}{I8qD98AIRRyidBDEs_WAqQ}{8Bc5pUJnTmyG6qNhZDIFTw}{theses-es01}{172.31.0.6}{172.31.0.6:9300}{cdfhilmrstw}]}, added {{theses-es01}{I8qD98AIRRyidBDEs_WAqQ}{8Bc5pUJnTmyG6qNhZDIFTw}{theses-es01}{172.31.0.6}{172.31.0.6:9300}{cdfhilmrstw}}, term: 5, version: 158, reason: ApplyCommitRequest{term=5, version=158, sourceNode={theses-es01}{I8qD98AIRRyidBDEs_WAqQ}{8Bc5pUJnTmyG6qNhZDIFTw}{theses-es01}{172.31.0.6}{172.31.0.6:9300}{cdfhilmrstw}{ml.machine_memory=1073741824, ml.max_jvm_size=536870912, xpack.installed=true}}",
+  "message":"master node changed {previous [], current [{theses-es-01}{I8qD98AIRRyidBDEs_WAqQ}{8Bc5pUJnTmyG6qNhZDIFTw}{theses-es-01}{172.31.0.6}{172.31.0.6:9300}{cdfhilmrstw}]}, added {{theses-es-01}{I8qD98AIRRyidBDEs_WAqQ}{8Bc5pUJnTmyG6qNhZDIFTw}{theses-es-01}{172.31.0.6}{172.31.0.6:9300}{cdfhilmrstw}}, term: 5, version: 158, reason: ApplyCommitRequest{term=5, version=158, sourceNode={theses-es-01}{I8qD98AIRRyidBDEs_WAqQ}{8Bc5pUJnTmyG6qNhZDIFTw}{theses-es-01}{172.31.0.6}{172.31.0.6:9300}{cdfhilmrstw}{ml.machine_memory=1073741824, ml.max_jvm_size=536870912, xpack.installed=true}}",
   "ecs.version": "1.2.0","service.name":"ES_ECS","event.dataset":"elasticsearch.server","process.thread.name":"elasticsearch[theses-es02][clusterApplierService#updateTask][T#1]",
   "log.logger":"org.elasticsearch.cluster.service.ClusterApplierService",
   "elasticsearch.node.name":"theses-es02",
