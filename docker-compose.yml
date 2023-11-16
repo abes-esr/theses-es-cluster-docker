@@ -40,8 +40,6 @@ services:
       # pour désactiver les recherches complexe (conseillé par https://checkups.opster.com/checkup/result/75470)
       # "Recommendations : Allow expensive queries can be disabled by setting config search.allow_expensive_queries: false in the yaml config file and then restarting the node."
       - search.allow_expensive_queries=false
-      # max de pages possible via recherche simple
-      - index.max_result_window=1000000
       # pour la quantité de données mises en cache
       # https://www.elastic.co/guide/en/elasticsearch/reference/current/shard-request-cache.html#_cache_settings
       - indices.requests.cache.size=10%
