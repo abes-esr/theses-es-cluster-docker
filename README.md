@@ -147,6 +147,13 @@ On peut également observer les logs des noeuds quand un noeud rejoint le cluste
 }
 ```
 
+## Sauvegarde
+
+Rien n'est a sauvegarder précisément sur les noeuds du cluster ES car il est sauvegardé au niveau du noeud coordinateur cf https://github.com/abes-esr/theses-docker/
+
+En revanche les chemins volumineux à d'exclure des sauvegardes sont les suivants :
+- ``/opt/pod/theses-es-cluster-docker/volumes/theses-elasticsearch/*`` : car il contient les données binaires d'elasticsearch
+
 
 ## Mémo
 
